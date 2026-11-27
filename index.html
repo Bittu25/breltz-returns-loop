@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Breltz Returns Loop</title>
+<style>
+:root{
+  --bg:#f6f5f1;--card:#ffffff;--ink:#1d1d1b;--muted:#6b6a64;--line:#e4e2da;
+  --accent:#1f5f4a;--accent-soft:#e3efe9;--warn:#b4541a;--warn-soft:#fbeadf;
+  --bad:#a8322d;--bad-soft:#f8e1df;--good:#2d7a3e;--good-soft:#e2f1e5;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif}
+header{background:var(--ink);color:#fff;padding:18px 24px}
+header h1{margin:0;font-size:20px;font-weight:650}
+header p{margin:4px 0 0;color:#c9c7bf;font-size:13px}
+nav{display:flex;gap:4px;padding:0 16px;background:#2a2a27;overflow-x:auto}
+nav button{background:none;border:0;color:#c9c7bf;padding:12px 14px;font:inherit;font-size:14px;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap}
+nav button.on{color:#fff;border-bottom-color:#7fc4a6}
+main{max-width:1100px;margin:0 auto;padding:20px 16px 48px}
+section{display:none}section.on{display:block}
+.note{font-size:12.5px;color:var(--muted);background:#eeece5;border-radius:8px;padding:8px 12px;margin-bottom:16px}
+h2{font-size:19px;margin:4px 0 4px}
+.sub{color:var(--muted);margin:0 0 16px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.g2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+.kpi{font-size:30px;font-weight:700;letter-spacing:-.5px}
+.kpi small{font-size:14px;color:var(--muted);font-weight:500}
+.lbl{font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:4px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:600;cursor:pointer;user-select:none}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.tag{display:inline-block;font-size:12px;padding:2px 8px;border-radius:99px;font-weight:600}
+.t-bad{background:var(--bad-soft);color:var(--bad)}.t-warn{background:var(--warn-soft);color:var(--warn)}.t-good{background:var(--good-soft);color:var(--good)}
+.bar{height:10px;border-radius:5px;background:#eceae3;overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--accent)}
+.row{display:flex;align-items:center;gap:10px;margin:8px 0}
+.row .name{width:200px;font-size:13.5px}
+.row .bar{flex:1}
+.row .v{width:56px;text-align:right;font-size:13.5px;font-variant-numeric:tabular-nums}
+.toggle{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:12px}
+.toggle button{border:0;background:#fff;padding:7px 12px;font:inherit;font-size:13px;cursor:pointer}
+.toggle button.on{background:var(--accent);color:#fff}
+.rank{display:inline-block;width:22px;height:22px;border-radius:50%;background:#eceae3;text-align:center;font-size:12px;line-height:22px;font-weight:700}
+.move-up{color:var(--good);font-weight:700}.move-down{color:var(--bad);font-weight:700}
+.callout{border-left:4px solid var(--accent);background:var(--accent-soft);padding:12px 14px;border-radius:0 10px 10px 0;margin:14px 0}
+.callout.warn{border-color:var(--warn);background:var(--warn-soft)}
+ul.tight{margin:6px 0 0;padding-left:18px}ul.tight li{margin:3px 0}
+.phone{width:320px;max-width:100%;margin:0 auto;border:10px solid #1d1d1b;border-radius:34px;background:#fff;overflow:hidden;min-height:560px;display:flex;flex-direction:column}
+.phone .top{background:var(--accent);color:#fff;padding:14px 16px;font-weight:600;font-size:15px}
+.phone .body{padding:16px;flex:1}
+.opt{display:block;width:100%;text-align:left;border:1px solid var(--line);background:#fff;border-radius:10px;padding:11px 12px;margin:8px 0;font:inherit;font-size:14px;cursor:pointer}
+.opt:hover{border-color:var(--accent)}
+.btn{display:inline-block;border:0;border-radius:10px;padding:10px 14px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;margin:6px 6px 0 0}
+.btn.p{background:var(--accent);color:#fff}.btn.s{background:#eceae3;color:var(--ink)}
+.small{font-size:12.5px;color:var(--muted)}
+.diag{border:1px dashed var(--accent);border-radius:10px;padding:10px;margin:10px 0;background:#fafaf7;font-size:13px}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0}
+.flow span{background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:13px}
+.flow b{color:var(--muted)}
+.log{font-family:ui-monospace,Menlo,monospace;font-size:12px;background:#1d1d1b;color:#d7f0e4;border-radius:10px;padding:12px;min-height:110px;white-space:pre-wrap}
+@media (max-width:640px){.row .name{width:120px}th,td{padding:7px 5px;font-size:13px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Breltz Returns Loop</h1>
+  <p>Prototype for Breltz Bags, built from the Hawky.ai discovery call. Join every return to the ad, creator, listing and reason that caused it, then fix the cause.</p>
+</header>
+<nav id="tabs">
+  <button data-t="truth" class="on">1. What the 30% really is</button>
+  <button data-t="pnl">2. Creative P&amp;L after returns</button>
+  <button data-t="claims">3. Promise check</button>
+  <button data-t="flow">4. Smart return flow</button>
+  <button data-t="loop">5. Closing the loop</button>
+</nav>
+<main>
+<div class="note">Numbers marked from the call are what the Breltz team said. Everything else is sample data to show how the screens work. In the pilot, these screens fill from Shopify, the weekly returns sheet, Freshdesk and Meta read access, all joined on order ID.</div>
+
+<!-- 1 -->
+<section id="truth" class="on">
+  <h2>The dashboard says 30%. That number hides three different problems.</h2>
+  <p class="sub">The 30% mixes undelivered COD orders (RTO) with returns after delivery, across all channels. Each needs a different fix.</p>
+  <div class="grid g3">
+    <div class="card"><div class="lbl">RTO on website (from the call)</div><div class="kpi">~6% <small>of web orders</small></div><div class="small">17 to 18% of COD orders, and COD is 35% of web orders. Fix: COD and pincode rules, already partly done.</div></div>
+    <div class="card"><div class="lbl">Customer returns, website (from the call)</div><div class="kpi">21 to 22%</div><div class="small">The real margin leak. Forward and reverse shipping both paid. Target from Aditya: below 12% in two quarters.</div></div>
+    <div class="card"><div class="lbl">Returned unused, grade A (from the call)</div><div class="kpi">75 to 80% <small>of Commuter returns</small></div><div class="small">Bags come back perfect. Damage in transit is only 4 to 5%. This is not a quality problem.</div></div>
+  </div>
+
+  <div class="grid g2" style="margin-top:14px">
+    <div class="card">
+      <div class="lbl">Customer return rate by channel (from the call)</div>
+      <div class="row"><span class="name">Myntra</span><span class="bar"><i style="width:100%;background:var(--bad)"></i></span><span class="v">31%</span></div>
+      <div class="row"><span class="name">Website</span><span class="bar"><i style="width:70%;background:var(--warn)"></i></span><span class="v">21.5%</span></div>
+      <div class="row"><span class="name">Amazon</span><span class="bar"><i style="width:44%"></i></span><span class="v">13.5%</span></div>
+      <p class="small" style="margin-top:10px">Same bag, very different return rates. Amazon shows a size comparison image, 2,400 reviews and customer photos. Myntra still shows the old Commuter 30 photos and a "30 litres" title.</p>
+    </div>
+    <div class="card">
+      <div class="lbl">Why customers really return (sample, after reading Freshdesk tickets with AI)</div>
+      <div class="row"><span class="name">Smaller than expected</span><span class="bar"><i style="width:82%"></i></span><span class="v">31%</span></div>
+      <div class="row"><span class="name">Laptop does not fit</span><span class="bar"><i style="width:63%"></i></span><span class="v">24%</span></div>
+      <div class="row"><span class="name">Colour looks different</span><span class="bar"><i style="width:42%"></i></span><span class="v">16%</span></div>
+      <div class="row"><span class="name">Bought two, kept one</span><span class="bar"><i style="width:29%"></i></span><span class="v">11%</span></div>
+      <div class="row"><span class="name">Damaged or defective</span><span class="bar"><i style="width:13%"></i></span><span class="v">5%</span></div>
+      <div class="row"><span class="name">Other</span><span class="bar"><i style="width:34%"></i></span><span class="v">13%</span></div>
+      <p class="small" style="margin-top:10px">Today more than half of returns say "Didn't like the product". The reason lives in a different system (Freshdesk or a call note), not on the return.</p>
+    </div>
+  </div>
+
+  <div class="callout"><b>Root cause:</b> Breltz is not selling a bad bag. It is selling a bag that is different from the one customers were shown. The ads, the creator videos and the Myntra listing all promise more space, a bigger laptop fit and warmer colours than the Commuter 28L has. Free returns since Diwali make it costless to act on that gap. Meta never hears about the return, so it keeps scaling the ads that over-promise most.</div>
+</section>
+
+<!-- 2 -->
+<section id="pnl">
+  <h2>Which ads are profitable after returns?</h2>
+  <p class="sub">Sneha scales on Meta's reported ROAS, which counts a returned order as a full sale. Switch the view to see what each ad really earns. Click a column to sort.</p>
+  <div class="toggle" id="mode"><button data-m="rep" class="on">Meta reported ROAS</button><button data-m="net">ROAS after returns</button></div>
+  <div class="card" style="overflow-x:auto">
+    <table id="pnlT">
+      <thead><tr><th>#</th><th data-k="name">Ad (sample)</th><th class="num" data-k="spend">Spend (₹L)</th><th class="num" data-k="rep">Reported ROAS</th><th class="num" data-k="ret">Return rate</th><th class="num" data-k="net">ROAS after returns</th><th>Top return reason</th><th>Action</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <p class="small">ROAS after returns = (revenue kept after returns, minus reverse pickup, QC and repack at about ₹220 a return, minus 40% markdown on the 12% of returns that cannot be resold) ÷ spend. Average order value assumed at ₹2,400 for the sample. Join keys: creator codes (RIYA15, ANANYA15) give an exact link for influencer orders; utm_content={{ad.id}} on every Meta link gives one for new orders.</p>
+  <div class="callout warn" id="pnlMsg"></div>
+</section>
+
+<!-- 3 -->
+<section id="claims">
+  <h2>Promise check: what customers are told vs what the bag is</h2>
+  <p class="sub">Every live ad, creator video and marketplace listing is checked against the product spec before it runs, and again every week. Today the agency proposes copy on WhatsApp and no one from product checks it.</p>
+  <div class="card" style="overflow-x:auto">
+    <table>
+      <thead><tr><th>Where</th><th>What it says or shows</th><th>The truth</th><th>Risk</th><th>Suggested fix</th></tr></thead>
+      <tbody>
+        <tr><td>Meta carousel (agency, changed in March)</td><td>"Fits up to 16-inch laptops"</td><td>Spec is 15.6 inch. A 16-inch MacBook goes in tight and strains the zip.</td><td><span class="tag t-bad">High</span></td><td>"Fits 15.6-inch laptops" plus a shot of a 15.6-inch laptop sliding in easily.</td></tr>
+        <tr><td>Myntra Commuter listing</td><td>Old Commuter 30 photos with the zip-in sleeve, title says 30 litres</td><td>The bag shipped is the 28L with a built-in compartment.</td><td><span class="tag t-bad">High</span></td><td>Raise the catalogue ticket today. Copy the Amazon image set, including the size comparison.</td></tr>
+        <tr><td>Riya "what's in my bag" (top ad, 5x)</td><td>A petite creator fits a laptop, lunch box, bottle and jacket. Shot wide on a phone.</td><td>The laptop looks like a 13-inch Air. With a 15.6-inch laptop, it holds less.</td><td><span class="tag t-warn">Medium</span></td><td>Keep the video. Add a 3-second end card: "Shown with a 13-inch laptop. Fits up to 15.6 inch. 28 litres." Brief creators to use a 15-inch laptop.</td></tr>
+        <tr><td>Ananya Dusty Rose reel (partnership ad)</td><td>Sunset in Goa, warm filter</td><td>Dusty Rose looks browner in normal light. Sage Green looks greyer.</td><td><span class="tag t-warn">Medium</span></td><td>Add a "true colour in daylight" frame. Show the studio swatch on the product page and in the ad.</td></tr>
+        <tr><td>Website product page</td><td>Dimensions in cm, inside the Specifications tab. Size guide is a PDF.</td><td>Amazon, with a person-and-bag size image, has the lowest return rate.</td><td><span class="tag t-warn">Medium</span></td><td>Put a size comparison image and a laptop fit checker in the first screen of the page.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout">Timeline from the call: the "16-inch" overlay went live in March, scaling of Commuter ads started in April, and returns went up in April. The team blamed the new Ludhiana vendor, but 75 to 80% of returns are unused.</div>
+</section>
+
+<!-- 4 -->
+<section id="flow">
+  <h2>Smart return flow: catch the misunderstanding before the pickup</h2>
+  <p class="sub">This replaces the dropdown on the Shopify returns app. Pooja gets a real reason on every return, tied to the order ID, and some returns are saved. Try it on the phone.</p>
+  <div class="grid g2">
+    <div>
+      <div class="phone"><div class="top">Return or exchange · Order #BRZ48213</div><div class="body" id="app"></div></div>
+    </div>
+    <div class="card">
+      <div class="lbl">What gets recorded (goes into the same row as the return)</div>
+      <div class="log" id="log">Waiting for the customer...</div>
+      <p class="small" style="margin-top:10px">Each answer is stored with the order ID, SKU, colour, channel, ad ID and creator code. That one row is what screens 1 and 2 are built from. Free returns stay free; a saved return just never needs a pickup.</p>
+      <ul class="tight small">
+        <li>Laptop fit: show the padded compartment video first. Pooja said some customers "haven't used the right compartment".</li>
+        <li>Too small: offer an exchange to the Voyager 40L before a refund.</li>
+        <li>Colour: offer a free colour swap, recorded against the ad that showed the colour.</li>
+        <li>Bought two colours: tag it as bracketing, so it does not count against the ad.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 5 -->
+<section id="loop">
+  <h2>Closing the loop so the fix lasts</h2>
+  <p class="sub">The dashboard alone tells Breltz what is wrong. These steps make the ad system learn from returns every week, without cutting spend.</p>
+  <div class="flow"><span>Meta ad (ad ID in utm_content)</span><b>→</b><span>Shopify order (UTM, creator code, survey)</span><b>→</b><span>Return with structured reason</span><b>→</b><span>QC grade (weekly sheet)</span><b>→</b><span>Refund event back to Meta</span></div>
+  <div class="grid g3" style="margin-top:12px">
+    <div class="card"><div class="lbl">Week 1: stop the leak</div><ul class="tight"><li>Change "16-inch" to "15.6-inch"</li><li>Fix the Myntra listing</li><li>Add end cards to the Riya and Ananya ads</li><li>Size image and fit checker on the website</li></ul></div>
+    <div class="card"><div class="lbl">Weeks 2 to 4: see it</div><ul class="tight"><li>Add utm_content={{ad.id}} to every Meta link</li><li>Join Shopify, the returns sheet and Freshdesk on order ID</li><li>Launch the smart return flow</li><li>Weekly creative P&amp;L in the Monday meeting</li></ul></div>
+    <div class="card"><div class="lbl">Month 2 onwards: teach Meta</div><ul class="tight"><li>Send refund events through CAPI so Meta learns net value</li><li>Scale and kill on ROAS after returns, not reported ROAS</li><li>Promise check before every new creative goes live</li></ul></div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <div class="lbl">What we will measure</div>
+    <table>
+      <thead><tr><th>Metric</th><th class="num">Today</th><th class="num">Goal</th></tr></thead>
+      <tbody>
+        <tr><td>Customer return rate, website</td><td class="num">21 to 22%</td><td class="num">Below 12% in 2 quarters</td></tr>
+        <tr><td>Contribution margin</td><td class="num">~9%</td><td class="num">18% or more</td></tr>
+        <tr><td>Returns with a usable reason (not "Didn't like" or "Other")</td><td class="num">Under 50%</td><td class="num">Over 90%</td></tr>
+        <tr><td>Returns saved by the flow (exchange or fit help)</td><td class="num">0</td><td class="num">15% of started returns</td></tr>
+        <tr><td>Share of Meta spend judged on ROAS after returns</td><td class="num">0%</td><td class="num">100%</td></tr>
+        <tr><td>Guardrail: website conversion rate</td><td class="num">Current</td><td class="num">No drop</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+</main>
+
+<script>
+// Tabs
+document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('on',x===b));
+  document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id===b.dataset.t));
+  window.scrollTo(0,0);
+});
+
+// Creative P&L (sample data)
+const AOV=2400, RET_COST=220, UNSELL=0.12, MARKDOWN=0.40;
+const ads=[
+  {name:'Riya "what\'s in my bag" UGC, Commuter 28L Black',spend:6.2,rep:5.0,ret:0.38,why:'Smaller than expected / laptop fit'},
+  {name:'Agency carousel "Fits up to 16-inch laptops"',spend:4.0,rep:4.2,ret:0.34,why:'Laptop does not fit'},
+  {name:'Ananya Dusty Rose sunset reel (partnership)',spend:2.5,rep:3.8,ret:0.41,why:'Colour looks different'},
+  {name:'Voyager 40L travel video',spend:2.2,rep:3.1,ret:0.24,why:'Smaller than expected'},
+  {name:'Creator commute video with a 15.6-inch laptop',spend:1.8,rep:2.9,ret:0.09,why:'Other'},
+  {name:'Studio catalogue ad, Commuter all colours',spend:3.0,rep:2.6,ret:0.11,why:'Bought two, kept one'}
+];
+ads.forEach(a=>{
+  const rev=a.spend*a.rep;                 // ₹L
+  const orders=rev*1e5/AOV;
+  const rets=orders*a.ret;
+  const kept=rev*(1-a.ret);
+  const cost=(rets*RET_COST + rets*UNSELL*AOV*MARKDOWN)/1e5;
+  a.net=Math.max(0,(kept-cost)/a.spend);
+});
+const repRank=[...ads].sort((x,y)=>y.rep-x.rep).map(a=>a.name);
+const netRank=[...ads].sort((x,y)=>y.net-x.net).map(a=>a.name);
+let mode='rep', sortK='rep', asc=false;
+function action(a){
+  if(a.net<2) return '<span class="tag t-bad">Fix creative before scaling</span>';
+  if(a.ret>0.3) return '<span class="tag t-warn">Keep, fix the promise</span>';
+  return '<span class="tag t-good">Scale</span>';
+}
+function draw(){
+  const rows=[...ads].sort((x,y)=>{const v=(typeof x[sortK]==='string')?x[sortK].localeCompare(y[sortK]):x[sortK]-y[sortK];return asc?v:-v});
+  document.querySelector('#pnlT tbody').innerHTML=rows.map(a=>{
+    const r1=repRank.indexOf(a.name)+1, r2=netRank.indexOf(a.name)+1, d=r1-r2;
+    const mv=mode==='net'&&d!==0?` <span class="${d>0?'move-up':'move-down'}">${d>0?'▲':'▼'}${Math.abs(d)}</span>`:'';
+    return `<tr><td><span class="rank">${mode==='net'?r2:r1}</span>${mv}</td><td>${a.name}</td><td class="num">${a.spend.toFixed(1)}</td>
+    <td class="num" style="${mode==='rep'?'font-weight:700':''}">${a.rep.toFixed(1)}x</td>
+    <td class="num">${Math.round(a.ret*100)}%</td>
+    <td class="num" style="${mode==='net'?'font-weight:700':''}">${mode==='net'?a.net.toFixed(1)+'x':'<span class="small">switch view</span>'}</td>
+    <td>${a.why}</td><td>${mode==='net'?action(a):''}</td></tr>`}).join('');
+  const msg=document.getElementById('pnlMsg');
+  if(mode==='rep'){msg.innerHTML='<b>What Sneha sees today:</b> the Riya video and the "16-inch" carousel are the clear winners, so they get scaled hardest. Switch to "ROAS after returns".';}
+  else{
+    const top=ads.find(a=>a.name.startsWith('Riya')), cat=ads.find(a=>a.name.startsWith('Studio'));
+    msg.innerHTML=`<b>After returns:</b> the Riya video drops from ${top.rep.toFixed(1)}x to ${top.net.toFixed(1)}x, and the Dusty Rose reel falls to last. The honest ads (the studio catalogue ad and the creator using a real 15.6-inch laptop) move up. The best ads are not bad ads: they are good ads that promise slightly too much. Fixing the promise keeps their reach and cuts their returns.`;
+  }
+}
+document.querySelectorAll('#mode button').forEach(b=>b.onclick=()=>{
+  mode=b.dataset.m; sortK=mode; asc=false;
+  document.querySelectorAll('#mode button').forEach(x=>x.classList.toggle('on',x===b)); draw();
+});
+document.querySelectorAll('#pnlT th[data-k]').forEach(th=>th.onclick=()=>{
+  const k=th.dataset.k; if(k==='net'&&mode!=='net')return; asc=(sortK===k)?!asc:false; sortK=k; draw();
+});
+draw();
+
+// Smart return flow
+const app=document.getElementById('app'), log=document.getElementById('log');
+const base={order:'BRZ48213',sku:'Commuter 28L',colour:'Black',channel:'Website, prepaid',ad_id:'Meta 23861 (Riya UGC)',creator_code:'RIYA15'};
+function rec(o){log.textContent=JSON.stringify(Object.assign({},base,o),null,2)}
+function screen(html){app.innerHTML=html}
+function start(){
+  log.textContent='Waiting for the customer...';
+  screen(`<p style="margin-top:0"><b>Commuter 28L, Black</b><br><span class="small">Delivered 2 days ago</span></p>
+  <p>What is not working for you?</p>
+  <button class="opt" data-r="fit">My laptop does not fit properly</button>
+  <button class="opt" data-r="small">It is smaller than I expected</button>
+  <button class="opt" data-r="colour">The colour looks different</button>
+  <button class="opt" data-r="two">I ordered more than one and am keeping one</button>
+  <button class="opt" data-r="damaged">It arrived damaged or faulty</button>
+  <button class="opt" data-r="other">Something else</button>`);
+  app.querySelectorAll('.opt').forEach(b=>b.onclick=()=>step(b.dataset.r));
+}
+function done(outcome,extra){
+  rec(Object.assign({reason:extra.reason,outcome},extra.more||{}));
+  const msg={saved:'Great, glad it works! No return needed.',exchange:'Exchange booked. We will pick up this bag when we drop the new one.',refund:'Return booked. Pickup in 1 to 2 days.'}[outcome];
+  screen(`<p style="font-size:16px"><b>${msg}</b></p><p class="small">Reason saved with your order so we can improve the bag and our ads.</p><button class="btn s" id="again">Start again</button>`);
+  document.getElementById('again').onclick=start;
+}
+function step(r){
+  if(r==='fit'){
+    rec({reason:'laptop_fit',outcome:'pending'});
+    screen(`<p style="margin-top:0"><b>Quick check before you return</b></p>
+    <div class="diag">The Commuter 28L holds laptops up to <b>15.6 inch</b> (34.5 × 24 cm) in the padded back compartment, the one closest to your back, not the front pocket.<br><br>▶ 20 second video: how to slide your laptop in</div>
+    <p>What size is your laptop?</p>
+    <button class="opt" data-s="ok">13 to 15.6 inch</button><button class="opt" data-s="big">16 inch or bigger</button>`);
+    app.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+      if(b.dataset.s==='ok'){screen(`<p style="margin-top:0">Did the back compartment work?</p><button class="btn p" id="y">Yes, it fits now</button><button class="btn s" id="n">No, still want to return</button>`);
+        document.getElementById('y').onclick=()=>done('saved',{reason:'laptop_fit',more:{laptop_size:'15.6',fix:'used_back_compartment'}});
+        document.getElementById('n').onclick=()=>done('refund',{reason:'laptop_fit',more:{laptop_size:'15.6'}});}
+      else{screen(`<p style="margin-top:0">Sorry, this bag is made for laptops up to 15.6 inch. The <b>Voyager 40L</b> fits up to 17 inch.</p><button class="btn p" id="ex">Exchange for Voyager 40L</button><button class="btn s" id="rf">Refund</button>`);
+        document.getElementById('ex').onclick=()=>done('exchange',{reason:'laptop_fit',more:{laptop_size:'16+',exchange_to:'Voyager 40L',flag:'ad promised 16-inch'}});
+        document.getElementById('rf').onclick=()=>done('refund',{reason:'laptop_fit',more:{laptop_size:'16+',flag:'ad promised 16-inch'}});}
+    });
+  } else if(r==='small'){
+    screen(`<p style="margin-top:0">Here is the Commuter 28L next to the Voyager 40L on a 5'7" person.</p><div class="diag">[Size comparison image: person with each bag]</div><p>Would a bigger bag work better?</p><button class="btn p" id="ex">Exchange for Voyager 40L</button><button class="btn s" id="rf">Refund</button>`);
+    document.getElementById('ex').onclick=()=>done('exchange',{reason:'smaller_than_expected',more:{exchange_to:'Voyager 40L'}});
+    document.getElementById('rf').onclick=()=>done('refund',{reason:'smaller_than_expected'});
+  } else if(r==='colour'){
+    screen(`<p style="margin-top:0">Sorry about that. Where did you see the colour before buying?</p><button class="opt" data-w="ad">An Instagram ad or creator video</button><button class="opt" data-w="site">The product photos on the website</button>`);
+    app.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+      const w=b.dataset.w;
+      screen(`<p style="margin-top:0">You can swap to another colour for free.</p><button class="btn p" id="sw">Swap colour</button><button class="btn s" id="rf">Refund</button>`);
+      document.getElementById('sw').onclick=()=>done('exchange',{reason:'colour_mismatch',more:{seen_in:w,exchange_to:'Black'}});
+      document.getElementById('rf').onclick=()=>done('refund',{reason:'colour_mismatch',more:{seen_in:w}});
+    });
+  } else if(r==='two'){
+    done('refund',{reason:'bracketing',more:{note:'not counted against the ad'}});
+  } else if(r==='damaged'){
+    screen(`<p style="margin-top:0">Please add a photo of the damage so our QC team can check the batch.</p><div class="diag">[Upload photo]</div><button class="btn p" id="rp">Get a replacement</button><button class="btn s" id="rf">Refund</button>`);
+    document.getElementById('rp').onclick=()=>done('exchange',{reason:'damaged',more:{route_to:'QC and vendor batch check'}});
+    document.getElementById('rf').onclick=()=>done('refund',{reason:'damaged',more:{route_to:'QC and vendor batch check'}});
+  } else {
+    screen(`<p style="margin-top:0">Tell us in a few words what went wrong.</p><div class="diag">[Text box]</div><button class="btn p" id="rf">Book return</button>`);
+    document.getElementById('rf').onclick=()=>done('refund',{reason:'other',more:{text:'classified by AI into the reason list'}});
+  }
+}
+start();
+</script>
+</body>
+</html>
